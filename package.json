@@ -10,9 +10,6 @@
   },
   "author": "Vivek",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Anandsg/Namaste-react/issues"
-  },
   "dependencies": {
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
