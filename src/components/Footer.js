@@ -10,7 +10,7 @@ const Footer = () => {
       <a
         href="https://github.com/vivekvanapala"
         target="_blank"
-        title="Anand's Github profile"
+        title="vivek's Github profile"
       >
         <img
           src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
