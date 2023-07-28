@@ -1,143 +1,49 @@
 import React from "react";
-import RestruarantCards from "./RestruarantCards";
-import { useState, useEffect } from "react";
-import Shimmer from "./Shimmer";
-import { Link } from "react-router-dom";
-import { filterData } from "../utils/helper";
-import useOnline from "../utils/useOnline";
+import { CDN_URL } from "../utils/constants";
 
-const Body = () => {
-  const [AlllistOfRestuarants, setAlllistOfRestuarants] = useState([]);
-  const [filteredlistOfRestuarants, setfilteredlistOfRestuarants] = useState(
-    []
-  );
-  const [searchText, setSearchText] = useState("");
-  const [suggestion,setsuggestion]=useState([]);
-  const [hidden,sethidden]=useState(false);
-
-    async function getsuggestion()
-    {
-      const suggestion=await fetch("http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q="+searchText);
-      const json=await suggestion.json();
-      setsuggestion(json[1]);
-    }
-
-  useEffect(() => {
-    // Fetch API
-    getRestaurants(); 
-  }, []);
-
-  async function getRestaurants() {
-    const data = await fetch(
-      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.50255414116582&lng=78.39727610349655&page_type=DESKTOP_WEB_LISTING"
-    );
-    const json = await data.json();
-    console.log(json);
-
-    setAlllistOfRestuarants(json?.data?.cards[5]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-    setAlllistOfRestuarants(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-
-    setfilteredlistOfRestuarants(json?.data?.cards[5]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-    setfilteredlistOfRestuarants(json?.data?.cards[2]?.card?.card?.gridElements?.infoWithStyle?.restaurants);
-  }
-
-  const isOnline = useOnline();
-  if (!isOnline) {
-    return (
-      <h3 className="flex flex-col items-center justify-center font-serif h-screen bg-gray-100 text-2xl font-bold text-red-500 mb-4">
-        {" "}
-        it appears that the user is currently offline
-      </h3>
-    );
-  }
-
-  // avoid rendering component (Early)
-  if (!AlllistOfRestuarants) return null;
-
-  return AlllistOfRestuarants.length === 0 ? (
-    <Shimmer />
-  ) : (
-    <>
-      <div className="search-container p-2 ml-auto border-black">
-        {filteredlistOfRestuarants?.length === 0 && searchText !== "" ? (
-          <div className="flex flex-col items-center">
-            <h2 className="font-bold text-center font-serif">
-              The restaurant you're searching for doesn't exist.
-            </h2>
-            <button
-              className="text-xs font-medium shadow-md px-2 py-2 outline-none m-2 rounded border border-gray-300 hover:border-gray-500 transition-all duration-200 ease-in-out text-gray-700 cursor-pointer"
-              onClick={() => {
-                window.location.href = "/";
-              }}
-            >
-              Go back to Home
-            </button>
-          </div>
-        ) : (
-          <>
-            <input
-              type="text"
-              className="w-64 text-xs border border-gray-300 shadow-md focus:border-gray-500 transition-all duration-300 px-2 py-2 outline-none  rounded"
-              placeholder="search restuarants"
-              value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value);
-              }} onFocus={(e)=>sethidden(true)} onBlur={(e)=>sethidden(false)}
-            />
-
-            <button
-              data-testid="search-btn"
-              className="text-xs font-medium shadow-md px-2 py-2 outline-none m-2 right-10 rounded border border-gray-300 hover:border-gray-500 transition-all duration-200 ease-in-out text-gray-700"
-              onClick={() => {
-                const data = filterData(searchText, AlllistOfRestuarants);
-                setfilteredlistOfRestuarants(data);
-                if (data.length === 0 && searchText !== "") {
-                  setfilteredlistOfRestuarants([]);
-                }
-              }}
-            >
-              Search
-            </button>
-
-            <span
-              className="text-xs font-medium shadow-md px-2 py-2 outline-none m-2 right-10 rounded border border-gray-300 hover:border-gray-500 transition-all duration-200 ease-in-out text-gray-700 cursor-pointer"
-              onClick={() => {
-                const filteredList = AlllistOfRestuarants.filter(
-                  (res) => res.avgRating > 4
-                );
-                setfilteredlistOfRestuarants(filteredList);
-              }}
-            >
-              Rating: 4.0+
+const RestruarantCards = (props) => {
+  return (
+    <div className="md:w-60 shadow-md md:shadow-none py-4 px-4 md:py-2  hover:shadow-xl rounded flex flex-col gap-1 text-[0.7rem] text-[#535665] ">
+      <img
+        src={
+          CDN_URL +
+          (props.resData.info.cloudinaryImageId === ""
+            ? "s6fhwzl0tss0vgrqvcid"
+            : props.resData.info.cloudinaryImageId)
+        }
+        alt=""
+        className=" rounded object-cover"
+      />
+      <div className="res-details px-2">
+        <h4 className="font-medium text-base text-black">{props.resData.info.name}</h4>
+        <span className="">{props.resData.info.cuisines?.join(", ")}</span>
+        <div className="flex justify-between items-center my-2 font-medium">
+          <div className="flex items-center gap-1 px-1 text-white bg-green-500 font-semibold">
+            <span className="text-[0.6rem]">&#9733;</span>
+            <span className="text-[0.6rem]">
+              {props.resData.avgRating === "--" ? "4.2" : props.resData.avgRating}
             </span>
-          </>
-        )}
-        <div className='fixed bg-white py-2 px-5 w-[30rem] shadow-lg rounded-lg'>
-              {hidden && <ul className='flex flex-col'>
-              {suggestion.map((s,index)=>{
-                  return <l1 className="py-2 px-3 shadow-sm  hover:bg-gray-300" key={index} >
-                    🔍{s}
-                    </l1>
-                })}
-
-                </ul>}
-            </div>
+          </div>
+          <div className="w-[3px] h-[3px] rounded-full bg-black"></div>
+          <span className="">{props.resData.info.sla.slaString}</span>
+          {/* <div className="font-light text-xs">
+            {resData.data.cuisines.join(", ")} - {deliveryTime} min
+          </div> */}
+          <div className="res-price">
+            <span className="text-xs">
+             {props.resData.info.costForTwo} 
+            </span>
+          </div>
+        </div>
+        <div className="flex border-t pt-4 gap-2  font-semibold"></div>
+        <span className="text-[#a0522d] text-center">
+          {!props.resData.info.aggregatedDiscountInfo?.shortDescriptionList[0]?.meta
+            ? "30% off | Use NEWFUD"
+            : aggregatedDiscountInfo?.shortDescriptionList[0]?.meta}
+        </span>
       </div>
-     
-
-      <div className="px-28 grid grid-cols-2 md:grid md:grid-cols-5 gap-4 ">
-        {filteredlistOfRestuarants.map((restaurant) => (
-          <Link
-            to={"/restaurants/" + restaurant?.info.id}
-            key={restaurant?.info.id}
-          >
-            {" "}
-            <RestruarantCards key={restaurant?.info.id} resData={restaurant} />
-          </Link>
-        ))}
-      </div>
-    </>
+    </div>
   );
 };
 
-export default Body;
+export default RestruarantCards;
