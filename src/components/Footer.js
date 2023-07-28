@@ -6,7 +6,7 @@ const Footer = () => {
     <div className="footer font-serif">
       Developed with 🧡 and a lot of ☕️ by vivek
       <i className="fa-solid fa-heart"></i>
-      {/* <a>Anand</a> */}
+      {/* <a></a> */}
       <a
         href="https://github.com/vivekvanapala"
         target="_blank"
