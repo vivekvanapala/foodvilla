@@ -15,12 +15,6 @@ const Body = () => {
   const [suggestion,setsuggestion]=useState([]);
   const [hidden,sethidden]=useState(false);
 
-  useEffect(()=>{
-    const timer=setTimeout(()=>getsuggestion(),200);
-    return ()=>{
-      clearTimeout(timer)
-    };
-    },[searchText]);
     async function getsuggestion()
     {
       const suggestion=await fetch("http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q="+searchText);
