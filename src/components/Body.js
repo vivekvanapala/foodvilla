@@ -13,6 +13,22 @@ const Body = () => {
   );
   const [searchText, setSearchText] = useState("");
 
+  const [suggestion,setsuggestion]=useState([]);
+
+
+  useEffect(()=>{
+    const timer=setTimeout(()=>getsuggestion(),200);
+     return ()=>{
+       clearTimeout(timer)
+     };
+     },[searchText]);
+     async function getsuggestion()
+     {
+       const suggestion=await fetch("http://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q="+searchText);
+       const json=await suggestion.json();
+       setsuggestion(json[1]);
+     }
+
   useEffect(() => {
     // Fetch API
     getRestaurants(); 
@@ -20,7 +36,7 @@ const Body = () => {
 
   async function getRestaurants() {
     const data = await fetch(
-      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.50255414116582&lng=78.39727610349655&page_type=DESKTOP_WEB_LISTING"
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=12.9351929&lng=77.62448069999999&page_type=DESKTOP_WEB_LISTING"
     );
     const json = await data.json();
     console.log(json);
@@ -94,13 +110,23 @@ const Body = () => {
               className="text-xs font-medium shadow-md px-2 py-2 outline-none m-2 right-10 rounded border border-gray-300 hover:border-gray-500 transition-all duration-200 ease-in-out text-gray-700 cursor-pointer"
               onClick={() => {
                 const filteredList = AlllistOfRestuarants.filter(
-                  (res) => res.avgRating > 4
+                  (res) => res?.info?.avgRating > 4
                 );
                 setfilteredlistOfRestuarants(filteredList);
               }}
             >
               Rating: 4.0+
             </span>
+            <div className='fixed bg-white py-2 px-5 w-[30rem] shadow-lg rounded-lg'>
+              <ul className='flex flex-col'>
+              {suggestion.map((s,index)=>{
+                  return <l1 className="py-2 px-3 shadow-sm  hover:bg-gray-300" key={index} >
+                    🔍{s}
+                    </l1>
+                })}
+
+                </ul>
+            </div>
           </>
         )}
       </div>
@@ -112,7 +138,7 @@ const Body = () => {
             key={restaurant?.info.id}
           >
             {" "}
-            <RestruarantCards key={restaurant?.info.id} resData={restaurant} />
+            <RestruarantCards key={restaurant?.info.id} resData={restaurant?.info} />
           </Link>
         ))}
       </div>
